@@ -1,18 +1,18 @@
 #include <Wire.h>
 #include <SPI.h>
 
-#include <Adafruit_ADS1015.h>   
-#include <Adafruit_GFX.h>     
+// #include <Adafruit_ADS1015.h>   
+// #include <Adafruit_GFX.h>     
 #include <Adafruit_Si7021.h>
-#include <Adafruit_SSD1306.h>
+// #include <Adafruit_SSD1306.h>
 
 // For US Sensor
 #define triggerPin 13 //Trigger pin connected to IO13
 #define echoPin 27 //Echo pin conencted to IO27
 
-// Setting up display
-Adafruit_SSD1306 display(128, 64, &Wire, -1);   //128x64 OLED Display - Using default I2C - No reset pin (-1)
-Adafruit_ADS1015 ads;                           //4-Channel Analog to Digital Converter 10-bit resolution
+// // Setting up display
+// Adafruit_SSD1306 display(128, 64, &Wire, -1);   //128x64 OLED Display - Using default I2C - No reset pin (-1)
+// Adafruit_ADS1015 ads;                           //4-Channel Analog to Digital Converter 10-bit resolution
 
 //Temp & humidity Sensor
 Adafruit_Si7021 si7021 = Adafruit_Si7021();     //Temperature & Humidity Sensor
@@ -25,6 +25,9 @@ void setup() {
   //pins for US sensor
   pinMode(triggerPin, OUTPUT);
   pinMode(echoPin, INPUT);
+
+  //Temp & humidity sensor
+  si7021.begin();                               //Initialize temperature & humidity sensor
 }
 
 void loop() {
@@ -32,8 +35,14 @@ void loop() {
 
   unsigned long distTime = getDistTime();
 
-  Serial.println((String)"Time (us): " + distTime);
-  Serial.println((String)"dist (mm): " + time2dist(distTime));
+  //temperature & humidity
+  double tempMeasured = si7021.readTemperature();
+  double rhMeasured = si7021.readHumidity();
+
+  // Serial.println((String)"Time (us): " + distTime);
+  // Serial.println((String)"dist (mm): " + time2dist(distTime));
+  Serial.println((String)"Temp: "+tempMeasured);
+  Serial.println((String)"Humi: "+rhMeasured);
   delay(500);
 }
 
@@ -58,6 +67,6 @@ unsigned long getDistTime() {
 double time2dist(unsigned long recTime){
   //inputs time in microseconds and outputs distance in mm 
   double dist;
-  dist = recTime * 0.34 /2;
+  dist = recTime * 0.34 /2; //speed of sound in km/s
   return dist; // dist in mm
 }
