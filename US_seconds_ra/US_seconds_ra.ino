@@ -11,6 +11,7 @@
 #define echoPin 27 //Echo pin conencted to IO27
 unsigned long distTime;
 double distMM;
+list<double> templist;
 
 // Setting up display
 Adafruit_SSD1306 display(128, 64, &Wire, -1);   //128x64 OLED Display - Using default I2C - No reset pin (-1)
@@ -41,17 +42,19 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  distTime = getDistTime();
-  distMM = time2dist(distTime);
+  // distTime = getDistTime();
+  // distMM = time2dist(distTime);
 
-  //temperature & humidity
-  tempMeasured = si7021.readTemperature();
-  rhMeasured = si7021.readHumidity();
+  // //temperature & humidity
+  // tempMeasured = si7021.readTemperature();
+  // rhMeasured = si7021.readHumidity();
 
-  //for the screen
-  updateScreen();
+  // //for the screen
+  // updateScreen();
 
-  delay(100);
+  templist = appendlist();
+  Serial.println((String)" " +templist);
+  delay(1000);
 }
 
 
@@ -92,4 +95,12 @@ void updateScreen(){
 
 
   display.display();                                            //Show everything on the screen
+}
+
+list<double> appendlist(){
+  double d[10]
+  for(double i = 0; i < 10; ++i)
+    d[i] = tempMeasured();
+  
+  return d
 }
