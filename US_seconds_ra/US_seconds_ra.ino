@@ -1,21 +1,24 @@
 #include <Wire.h>
-#include <SPI.h>
+// #include <SPI.h>
 
-// #include <Adafruit_ADS1015.h>   
-// #include <Adafruit_GFX.h>     
-#include <Adafruit_Si7021.h>
-// #include <Adafruit_SSD1306.h>
+// #include <Adafruit_ADS1015.h> // for ADC 
+#include <Adafruit_GFX.h>   // For graphics (for display)
+#include <Adafruit_Si7021.h> // For temp & humidity sensor
+#include <Adafruit_SSD1306.h> //For display
 
 // For US Sensor
 #define triggerPin 13 //Trigger pin connected to IO13
 #define echoPin 27 //Echo pin conencted to IO27
+unsigned long distTime;
+double distMM;
 
-// // Setting up display
-// Adafruit_SSD1306 display(128, 64, &Wire, -1);   //128x64 OLED Display - Using default I2C - No reset pin (-1)
-// Adafruit_ADS1015 ads;                           //4-Channel Analog to Digital Converter 10-bit resolution
+// Setting up display
+Adafruit_SSD1306 display(128, 64, &Wire, -1);   //128x64 OLED Display - Using default I2C - No reset pin (-1)
 
 //Temp & humidity Sensor
 Adafruit_Si7021 si7021 = Adafruit_Si7021();     //Temperature & Humidity Sensor
+double tempMeasured;
+double rhMeasured;
 
 
 void setup() {
@@ -28,22 +31,27 @@ void setup() {
 
   //Temp & humidity sensor
   si7021.begin();                               //Initialize temperature & humidity sensor
+
+  //Display
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);    //Initialize OLED - Use internal power source - I2C address = 0x3C
+  display.setTextSize(2);
+  display.setTextColor(SSD1306_WHITE);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
 
-  unsigned long distTime = getDistTime();
+  distTime = getDistTime();
+  distMM = time2dist(distTime);
 
   //temperature & humidity
-  double tempMeasured = si7021.readTemperature();
-  double rhMeasured = si7021.readHumidity();
+  tempMeasured = si7021.readTemperature();
+  rhMeasured = si7021.readHumidity();
 
-  // Serial.println((String)"Time (us): " + distTime);
-  // Serial.println((String)"dist (mm): " + time2dist(distTime));
-  Serial.println((String)"Temp: "+tempMeasured);
-  Serial.println((String)"Humi: "+rhMeasured);
-  delay(500);
+  //for the screen
+  updateScreen();
+
+  delay(100);
 }
 
 
@@ -69,4 +77,19 @@ double time2dist(unsigned long recTime){
   double dist;
   dist = recTime * 0.34 /2; //speed of sound in km/s
   return dist; // dist in mm
+}
+
+
+void updateScreen(){
+  display.clearDisplay();                                       //Clears the display
+  display.setCursor(0,0);                                       //Move to 0,0 on display (Top Left)
+  display.print("T:"); display.println(tempMeasured,1);                      //print("...") - prints out the characters between "" on the display
+  display.print("RH:"); display.println(rhMeasured,1);                   //print(variable, 1) - prints out the variable with 1 decimal
+  // display.print(" d:"); display.println(d, 1);                  //println - prints and then moves to the next line
+
+  display.print("time:");display.println(distTime,1);
+  display.print("d:");display.println(distMM,1);
+
+
+  display.display();                                            //Show everything on the screen
 }
