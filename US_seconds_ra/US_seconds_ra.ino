@@ -1,6 +1,8 @@
 #include <Wire.h>
 // #include <SPI.h>
 
+#include <vector>
+
 // #include <Adafruit_ADS1015.h> // for ADC 
 #include <Adafruit_GFX.h>   // For graphics (for display)
 #include <Adafruit_Si7021.h> // For temp & humidity sensor
@@ -11,16 +13,20 @@
 #define echoPin 27 //Echo pin conencted to IO27
 unsigned long distTime;
 double distMM;
-list<double> templist;
 
 // Setting up display
 Adafruit_SSD1306 display(128, 64, &Wire, -1);   //128x64 OLED Display - Using default I2C - No reset pin (-1)
 
 //Temp & humidity Sensor
 Adafruit_Si7021 si7021 = Adafruit_Si7021();     //Temperature & Humidity Sensor
-double tempMeasured;
-double rhMeasured;
+double tempMeasured = 29.00;
+double rhMeasured = 30.00;
 
+//For transfer funct
+const double A = 0.163389;
+const double B = 0;
+const double C = 0;
+const double D = 0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -42,19 +48,25 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  // distTime = getDistTime();
-  // distMM = time2dist(distTime);
+  distTime = getDistTime();
+  distMM = time2dist(distTime);
 
   // //temperature & humidity
-  // tempMeasured = si7021.readTemperature();
-  // rhMeasured = si7021.readHumidity();
+  tempMeasured = si7021.readTemperature();
+  rhMeasured = si7021.readHumidity();
 
   // //for the screen
-  // updateScreen();
+  updateScreen();
 
-  templist = appendlist();
-  Serial.println((String)" " +templist);
-  delay(1000);
+  // serial print
+  Serial.print(distTime);
+  Serial.print("\t");
+  Serial.print(tempMeasured);
+  Serial.print("\t");
+  Serial.print(rhMeasured);
+  Serial.print("\t");
+  Serial.print(distMM);
+  Serial.print("\n");
 }
 
 
@@ -78,7 +90,8 @@ unsigned long getDistTime() {
 double time2dist(unsigned long recTime){
   //inputs time in microseconds and outputs distance in mm 
   double dist;
-  dist = recTime * 0.34 /2; //speed of sound in km/s
+  // dist = recTime * 0.34 /2; //speed of sound in km/s
+  dist = recTime * A + tempMeasured * B + rhMeasured*C + D;
   return dist; // dist in mm
 }
 
@@ -95,12 +108,4 @@ void updateScreen(){
 
 
   display.display();                                            //Show everything on the screen
-}
-
-list<double> appendlist(){
-  double d[10]
-  for(double i = 0; i < 10; ++i)
-    d[i] = tempMeasured();
-  
-  return d
 }
