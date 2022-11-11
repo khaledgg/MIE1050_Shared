@@ -23,7 +23,7 @@ double tempMeasured = 29.00;
 double rhMeasured = 30.00;
 
 //For transfer funct
-const double A = 0.163389;
+const double A = 0.163388688;
 const double B = 0;
 const double C = 0;
 const double D = 0;
