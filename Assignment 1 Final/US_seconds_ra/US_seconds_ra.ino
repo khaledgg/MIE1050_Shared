@@ -1,6 +1,8 @@
 #include <Wire.h>
 // #include <SPI.h>
 
+#include <vector>
+
 // #include <Adafruit_ADS1015.h> // for ADC 
 #include <Adafruit_GFX.h>   // For graphics (for display)
 #include <Adafruit_Si7021.h> // For temp & humidity sensor
@@ -17,9 +19,14 @@ Adafruit_SSD1306 display(128, 64, &Wire, -1);   //128x64 OLED Display - Using de
 
 //Temp & humidity Sensor
 Adafruit_Si7021 si7021 = Adafruit_Si7021();     //Temperature & Humidity Sensor
-double tempMeasured;
-double rhMeasured;
+double tempMeasured = 29.00;
+double rhMeasured = 30.00;
 
+//For transfer funct
+const double A = 0.163388688;
+const double B = 0;
+const double C = 0;
+const double D = 0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -44,14 +51,22 @@ void loop() {
   distTime = getDistTime();
   distMM = time2dist(distTime);
 
-  //temperature & humidity
+  // //temperature & humidity
   tempMeasured = si7021.readTemperature();
   rhMeasured = si7021.readHumidity();
 
-  //for the screen
+  // //for the screen
   updateScreen();
 
-  delay(100);
+  // serial print
+  Serial.print(distTime);
+  Serial.print("\t");
+  Serial.print(tempMeasured);
+  Serial.print("\t");
+  Serial.print(rhMeasured);
+  Serial.print("\t");
+  Serial.print(distMM);
+  Serial.print("\n");
 }
 
 
@@ -75,7 +90,8 @@ unsigned long getDistTime() {
 double time2dist(unsigned long recTime){
   //inputs time in microseconds and outputs distance in mm 
   double dist;
-  dist = recTime * 0.34 /2; //speed of sound in km/s
+  // dist = recTime * 0.34 /2; //speed of sound in km/s
+  dist = recTime * A + tempMeasured * B + rhMeasured*C + D;
   return dist; // dist in mm
 }
 
