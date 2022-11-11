@@ -6,9 +6,11 @@ void setup() {
 }
 void loop ()
 {
-   while(1)
-   {
-     Serial.print(analogRead(sensorPin));
-     Serial.print('\n');
-   }
+//    while(1)
+//    {
+//     //  Serial.print(analogRead(sensorPin));
+//     // Serial.print('\n');
+//    }
+    Serial.print('a');
+    Serial.print('\n');
 } 
